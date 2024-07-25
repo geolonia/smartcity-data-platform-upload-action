@@ -1,14 +1,13 @@
 import * as core from '@actions/core';
 import findInputData from './stages/10_findInputData';
 import inputToGeoJSON from './stages/20_inputToGeoJSON';
+import sendToDataPlatform from './stages/30_sendToDataPlatform';
 
 async function main() {
-  const apiEndpoint = core.getInput('api-endpoint');
   const apiKey = core.getInput('api-key');
   core.setSecret(apiKey);
 
   const dataDirectory = core.getInput('data-directory');
-  const id = core.getInput('id');
 
   // console.log('api-endpoint:', apiEndpoint);
   // console.log('api-key:', apiKey);
@@ -24,9 +23,12 @@ async function main() {
   }
 
   for (const data of inputData) {
-    console.log('レイヤー:', data.layerName);
+    console.log(`レイヤー: ${data.layerName} (${data.type})`);
     const features = await inputToGeoJSON(data);
-    console.log('地物数:', features.length);
+    console.log(`[${data.layerName}] 地物数:`, features.length);
+
+    await sendToDataPlatform(data, features);
+    console.log(`[${data.layerName}] 送信完了`);
   }
 }
 
