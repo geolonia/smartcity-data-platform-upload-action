@@ -1,5 +1,6 @@
 import * as core from '@actions/core';
-import findInputData from './findInputData';
+import findInputData from './stages/10_findInputData';
+import inputToGeoJSON from './stages/20_inputToGeoJSON';
 
 async function main() {
   const apiEndpoint = core.getInput('api-endpoint');
@@ -8,21 +9,24 @@ async function main() {
 
   const dataDirectory = core.getInput('data-directory');
   const id = core.getInput('id');
-  const shapefileDefaultCrs = core.getInput('shapefile-default-crs');
 
   // console.log('api-endpoint:', apiEndpoint);
   // console.log('api-key:', apiKey);
   // console.log('data-directory:', dataDirectory);
   // console.log('id:', id);
-  // console.log('shapefile-default-crs:', shapefileDefaultCrs);
 
   const inputData = await findInputData(dataDirectory);
   core.debug(`Found ${inputData.length} input data files.`);
-  console.log('inputData:', inputData);
 
   if (inputData.length === 0) {
     core.setFailed('No input data found.');
     return;
+  }
+
+  for (const data of inputData) {
+    console.log('レイヤー:', data.layerName);
+    const features = await inputToGeoJSON(data);
+    console.log('地物数:', features.length);
   }
 }
 
