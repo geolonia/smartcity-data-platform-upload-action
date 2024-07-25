@@ -7,7 +7,24 @@ export default async function sendToDataPlatform(inputData: InputData, features:
   const apiEndpoint = core.getInput('api-endpoint');
   const tenantId = core.getInput('id');
 
-  const url = `${apiEndpoint}/api/${tenantId}/dataset/${inputData.layerName}`;
+  const datasetUrl = `${apiEndpoint}/api/${tenantId}/dataset`;
+  const url = `${datasetUrl}/${inputData.layerName}`;
+
+  const datasetResp = await client.get(url);
+  if (datasetResp.message.statusCode === 404) {
+    // dataset not found, create one.
+    const body = JSON.stringify({
+      slug: inputData.layerName,
+      display_name: inputData.layerName,
+    });
+    const response = await client.post(datasetUrl, body, {
+      'Content-Type': 'application/json',
+    });
+    if (response.message.statusCode !== 200) {
+      const body = await response.readBody();
+      throw new Error(`Failed to create dataset: ${response.message.statusCode} ${body}`);
+    }
+  }
 
   for (const feature of features) {
     const body = JSON.stringify({
