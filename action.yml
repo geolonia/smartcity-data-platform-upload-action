@@ -1,0 +1,30 @@
+name: 'Geolonia SmartCity Data Platform Upload'
+description: 'Upload data to Geolonia SmartCity Data Platform.'
+author: 'Geolonia'
+
+inputs:
+  data-directory:
+    description: 'Input directory.'
+    required: true
+    default: './data'
+
+  id:
+    description: 'Geolonia SmartCity データ基盤の識別子'
+    required: true
+
+  shapefile-default-crs:
+    description: '.prj ファイルが存在しないときに使うCRS。設定されていないとき、 `.prj` ファイルが存在しない場合はエラーになります。'
+    required: false
+  
+  api-key:
+    description: 'データ基盤に認証するためのAPIキー'
+    required: true
+
+  api-endpoint:
+    description: 'データ基盤のAPIエンドポイント'
+    required: false
+    default: 'https://api.smartcity.geolonia-dev.click'
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
