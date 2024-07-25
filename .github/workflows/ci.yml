@@ -23,4 +23,5 @@ jobs:
         with:
           data-directory: './data'
           id: 'smartcity-data-platform-upload-action-test'
+          shapefile-default-crs: 'EPSG:2446'
           api-key: 'test-api-key'
