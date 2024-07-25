@@ -20,7 +20,8 @@ export default async function sendToDataPlatform(inputData: InputData, features:
     });
 
     if (response.message.statusCode !== 200) {
-      throw new Error(`Failed to send data to the platform: ${response.message.statusCode}`);
+      const body = await response.readBody();
+      throw new Error(`Failed to send data to the platform: ${response.message.statusCode} ${body}`);
     }
   }
 }
