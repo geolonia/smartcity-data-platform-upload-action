@@ -19,6 +19,7 @@ export default async function shp2geojson(shpPath: string): Promise<GeoJSON.Feat
   let rawGeoJSON = '';
   const ogrArgs = [
     ...srsArgs,
+    '-t_srs', 'EPSG:4326', // GeoJSON assumes WGS84
     '-f', 'GeoJSON',
     '/vsistdout/',
     shpPath,
