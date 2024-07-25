@@ -8,7 +8,7 @@ export default async function sendToDataPlatform(inputData: InputData, features:
   const tenantId = core.getInput('id');
 
   const datasetUrl = `${apiEndpoint}/api/${tenantId}/dataset`;
-  const url = `${datasetUrl}/${inputData.layerName}`;
+  const url = `${datasetUrl}/${inputData.layerName}/features`;
 
   const datasetResp = await client.get(url);
   if (datasetResp.message.statusCode === 404) {
