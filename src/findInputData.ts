@@ -1,5 +1,5 @@
 import path from 'node:path';
-import glob from '@actions/glob';
+import * as glob from '@actions/glob';
 
 export type InputData = {
   type: 'xlsx' | 'csv' | 'geojson' | 'shp';
@@ -20,8 +20,6 @@ export default async function findInputData(dataDirectory: string): Promise<Inpu
 
   return files.map((file) => {
     const ext = path.extname(file).toLowerCase();
-    const base = path.basename(file, ext);
-
     // layerName is the relative path from dataDirectory, separators replaced by underscores, and no extension
     const layerName = path.relative(dataDirectory, file).replace(/[\\/]/g, '_').replace(/\.[^.]+$/, '');    
 
