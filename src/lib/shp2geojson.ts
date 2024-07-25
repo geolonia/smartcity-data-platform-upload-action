@@ -1,7 +1,9 @@
 import path from 'node:path';
+import stream from 'node:stream';
 import fs from 'node:fs';
 import * as exec from '@actions/exec';
 import * as core from '@actions/core';
+import BlackHoleStream from './BlackHoleStream';
 
 export default async function shp2geojson(shpPath: string): Promise<GeoJSON.Feature[]> {
   const shapefileDefaultCrs = core.getInput('shapefile-default-crs');
@@ -25,6 +27,7 @@ export default async function shp2geojson(shpPath: string): Promise<GeoJSON.Feat
     shpPath,
   ];
   await exec.exec('ogr2ogr', ogrArgs, {
+    outStream: new BlackHoleStream(),
     listeners: {
       stdout: (data) => {
         rawGeoJSON += data.toString();
