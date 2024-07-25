@@ -18,6 +18,10 @@ const PROCESSORS: { [key: string]: (inputPath: string) => Promise<GeoJSON.Featur
   'xlsx': excel2geojson,
 };
 
-export default async function inputToGeoJSON(inputData: InputData): Promise<void> {
-
+export default async function inputToGeoJSON(inputData: InputData): Promise<GeoJSON.Feature[]> {
+  const processor = PROCESSORS[inputData.type];
+  if (!processor) {
+    throw new Error(`未対応のファイル形式です: ${inputData.type}`);
+  }
+  return processor(inputData.path);
 }
