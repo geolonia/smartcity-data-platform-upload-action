@@ -1,11 +1,19 @@
 import type GeoJSON from 'geojson';
+import fsP from 'fs/promises';
 import Papa from 'papaparse';
+import detectAndDecode from './detectAndDecode';
 
 export class CSV2GeoJSONError extends Error {
   constructor(message: string) {
     super(message);
     this.name = 'CSV2GeoJSONError';
   }
+}
+
+export async function csvFile2geojson(csvPath: string): Promise<GeoJSON.Feature[]> {
+  const csvData = await fsP.readFile(csvPath);
+  const csvString = detectAndDecode(csvData);
+  return csv2geojson(csvString);
 }
 
 export default function csv2geojson(csvString: string): Promise<GeoJSON.Feature[]> {
@@ -24,7 +32,7 @@ export default function csv2geojson(csvString: string): Promise<GeoJSON.Feature[
           /lng/i,
         ];
 
-        let latField, lonField;
+        let latField: string | undefined, lonField: string | undefined;
 
         const headers = results.meta.fields;
 

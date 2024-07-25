@@ -1,7 +1,14 @@
 import iconv from 'iconv-lite';
 import jschardet from 'jschardet';
 
-export default function detectAndDecode(content: Buffer): string | false {
+export class UnsupportedEncodingError extends Error {
+  constructor(detectedEncoding: string) {
+    super(`Unsupported encoding: ${detectedEncoding}`);
+    this.name = 'UnsupportedEncodingError';
+  }
+}
+
+export default function detectAndDecode(content: Buffer): string {
   const detectedEncoding = jschardet.detect(content).encoding;
   if (detectedEncoding === 'SHIFT_JIS') {
     return iconv.decode(content, 'Shift_JIS');
@@ -12,5 +19,5 @@ export default function detectAndDecode(content: Buffer): string | false {
     return content.toString('utf8');
   }
 
-  return false;
+  throw new UnsupportedEncodingError(detectedEncoding);
 }

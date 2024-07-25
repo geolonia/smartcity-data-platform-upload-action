@@ -1,7 +1,6 @@
 import XLSX from 'xlsx';
 
 export default async function excel2csv(excelPath: string) {
-
   const workbook = XLSX.readFile(excelPath, {cellNF: true, cellText: true, cellDates: true});
   const sheetName = workbook.SheetNames[0];
   const sheet = workbook.Sheets[sheetName];
