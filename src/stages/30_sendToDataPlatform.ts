@@ -46,14 +46,19 @@ export default async function sendToDataPlatform(inputData: InputData, features:
       properties: feature.properties,
       geom: feature.geometry,
     });
-    currentChunkCount += 1;
-    currentChunk += body + ',';
-    if (currentChunk.length > 4_000_000) {
+
+    if (currentChunk.length + body.length > 5_000_000) {
+      if (currentChunkCount === 0) {
+        throw new Error('Feature too large to send to the platform - each singular feature must be less than 5MB');
+      }
       currentChunk = currentChunk.slice(0, -1) + ']';
       console.log(`Sending chunk of ${currentChunkCount} features`);
       await sendChunk(currentChunk);
       currentChunkCount = 0;
       currentChunk = '[';
+    } else {
+      currentChunkCount += 1;
+      currentChunk += body + ',';
     }
   }
 
