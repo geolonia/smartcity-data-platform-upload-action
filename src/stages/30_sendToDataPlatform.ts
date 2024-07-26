@@ -20,9 +20,9 @@ export default async function sendToDataPlatform(inputData: InputData, features:
     const response = await client.post(datasetUrl, body, {
       'Content-Type': 'application/json',
     });
+    const respBody = await response.readBody();
     if (response.message.statusCode !== 200) {
-      const body = await response.readBody();
-      throw new Error(`Failed to create dataset: ${response.message.statusCode} ${body}`);
+      throw new Error(`Failed to create dataset: ${response.message.statusCode} ${respBody}`);
     }
   }
 
@@ -31,8 +31,9 @@ export default async function sendToDataPlatform(inputData: InputData, features:
       'Content-Type': 'application/json',
     });
 
+    // we must consume the body, otherwise the connection will be left open and the action will hang.
+    const body = await response.readBody();
     if (response.message.statusCode !== 200) {
-      const body = await response.readBody();
       throw new Error(`Failed to send data to the platform: ${response.message.statusCode} ${body}`);
     }
   };

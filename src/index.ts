@@ -30,6 +30,8 @@ async function main() {
     await sendToDataPlatform(data, features);
     console.log(`[${data.layerName}] 送信完了`);
   }
+
+  console.log('処理完了');
 }
 
 main().catch((error) => {
