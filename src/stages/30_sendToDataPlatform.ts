@@ -26,13 +26,8 @@ export default async function sendToDataPlatform(inputData: InputData, features:
     }
   }
 
-  for (const feature of features) {
-    const body = JSON.stringify({
-      properties: feature.properties,
-      geom: feature.geometry,
-    });
-
-    const response = await client.post(url, body, {
+  const sendChunk = async (chunk: string): Promise<void> => {
+    const response = await client.post(url, chunk, {
       'Content-Type': 'application/json',
     });
 
@@ -40,5 +35,30 @@ export default async function sendToDataPlatform(inputData: InputData, features:
       const body = await response.readBody();
       throw new Error(`Failed to send data to the platform: ${response.message.statusCode} ${body}`);
     }
+  };
+
+  // We can POST up to about 5MB of data at a time, so we'll split the data into chunks.
+  let currentChunk: string = '[';
+  let currentChunkCount = 0;
+  for (const feature of features) {
+    const body = JSON.stringify({
+      properties: feature.properties,
+      geom: feature.geometry,
+    });
+    currentChunkCount += 1;
+    currentChunk += body + ',';
+    if (currentChunk.length > 4_000_000) {
+      currentChunk = currentChunk.slice(0, -1) + ']';
+      console.log(`Sending chunk of ${currentChunkCount} features`);
+      await sendChunk(currentChunk);
+      currentChunkCount = 0;
+      currentChunk = '[';
+    }
+  }
+
+  if (currentChunk.length > 1) {
+    currentChunk = currentChunk.slice(0, -1) + ']';
+    console.log(`Sending chunk of ${currentChunkCount} features`);
+    await sendChunk(currentChunk);
   }
 }
