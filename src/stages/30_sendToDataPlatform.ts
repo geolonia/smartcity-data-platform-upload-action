@@ -1,5 +1,6 @@
 import * as core from '@actions/core';
 import * as http from '@actions/http-client';
+import { v7 as uuid7 } from 'uuid';
 import { InputData } from './10_findInputData';
 
 export default async function sendToDataPlatform(inputData: InputData, features: GeoJSON.Feature[]): Promise<void> {
@@ -7,31 +8,27 @@ export default async function sendToDataPlatform(inputData: InputData, features:
   const apiEndpoint = core.getInput('api-endpoint');
   const tenantId = core.getInput('id');
 
-  const datasetUrl = `${apiEndpoint}/api/${tenantId}/dataset`;
-  const url = `${datasetUrl}/${inputData.layerName}/features`;
+  const newDatasetSlug = uuid7();
 
-  const datasetResp = await client.get(url);
-  if (datasetResp.message.statusCode === 404) {
-    // dataset not found, create one.
-    const body = JSON.stringify({
-      slug: inputData.layerName,
-      display_name: inputData.layerName,
-    });
-    const response = await client.post(datasetUrl, body, {
-      'Content-Type': 'application/json',
-    });
-    const respBody = await response.readBody();
-    if (response.message.statusCode !== 200) {
-      throw new Error(`Failed to create dataset: ${response.message.statusCode} ${respBody}`);
-    }
+  const datasetUrl = `${apiEndpoint}/api/${tenantId}/dataset`;
+
+  const body = JSON.stringify({
+    slug: newDatasetSlug,
+    display_name: inputData.layerName,
+  });
+  const createDatasetResp = await client.post(datasetUrl, body, {
+    'Content-Type': 'application/json',
+  });
+  const respBody = await createDatasetResp.readBody();
+  if (createDatasetResp.message.statusCode !== 200) {
+    throw new Error(`Failed to create dataset: ${createDatasetResp.message.statusCode} ${respBody}`);
   }
 
   const sendChunk = async (chunk: string): Promise<void> => {
-    const response = await client.post(url, chunk, {
+    const response = await client.post(`${datasetUrl}/${newDatasetSlug}/features`, chunk, {
       'Content-Type': 'application/json',
     });
 
-    // we must consume the body, otherwise the connection will be left open and the action will hang.
     const body = await response.readBody();
     if (response.message.statusCode !== 200) {
       throw new Error(`Failed to send data to the platform: ${response.message.statusCode} ${body}`);
@@ -66,5 +63,17 @@ export default async function sendToDataPlatform(inputData: InputData, features:
     currentChunk = currentChunk.slice(0, -1) + ']';
     console.log(`Sending chunk of ${currentChunkCount} features`);
     await sendChunk(currentChunk);
+  }
+  // Rename the dataset to the final name, overwriting the current data
+  const renameUrl = `${datasetUrl}/${newDatasetSlug}/rename`;
+  const renameBody = JSON.stringify({
+    slug: inputData.layerName,
+  });
+  const renameResp = await client.post(renameUrl, renameBody, {
+    'Content-Type': 'application/json',
+  });
+  const renameRespBody = await renameResp.readBody();
+  if (renameResp.message.statusCode !== 200) {
+    throw new Error(`Failed to rename dataset: ${renameResp.message.statusCode} ${renameRespBody}`);
   }
 }
