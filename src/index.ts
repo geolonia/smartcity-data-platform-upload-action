@@ -1,3 +1,4 @@
+import * as process from 'node:process';
 import * as core from '@actions/core';
 import findInputData from './stages/10_findInputData';
 import inputToGeoJSON from './stages/20_inputToGeoJSON';
@@ -34,6 +35,11 @@ async function main() {
   console.log('処理完了');
 }
 
-main().catch((error) => {
-  core.setFailed(error.message);
+main()
+  .then(() => {
+    process.exit(0);
+  })
+  .catch((error) => {
+    core.setFailed(error.message);
+    process.exit(1);
 });
