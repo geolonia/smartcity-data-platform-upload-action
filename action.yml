@@ -13,7 +13,7 @@ inputs:
     required: true
 
   shapefile-default-crs:
-    description: '.prj ファイルが存在しないときに使うCRS。設定されていないとき、 `.prj` ファイルが存在しない場合はエラーになります。'
+    description: 'Shapefile の .prj ファイルが存在しないときに使うCRS。設定されていないとき、 `.prj` ファイルが存在しない場合はエラーになります。'
     required: false
   
   api-key:
