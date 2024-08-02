@@ -24,4 +24,4 @@ jobs:
           data-directory: './data'
           id: 'smartcity-data-platform-upload-action-test'
           shapefile-default-crs: 'EPSG:2446'
-          api-key: 'test-api-key'
+          api-key: ${secrets.GEOLONIA_DATA_PLATFORM_API_KEY}
