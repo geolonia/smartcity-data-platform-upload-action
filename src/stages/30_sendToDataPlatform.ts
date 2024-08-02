@@ -4,7 +4,13 @@ import { v7 as uuid7 } from 'uuid';
 import { InputData } from './10_findInputData';
 
 export default async function sendToDataPlatform(inputData: InputData, features: GeoJSON.Feature[]): Promise<void> {
-  const client = new http.HttpClient('data-platform');
+  const apiKey = core.getInput('api-key');
+  const dataPlatformClient = new http.HttpClient('data-platform', [], {
+    headers: {
+      'authorization': `Bearer ${apiKey}`,
+      [http.Headers.ContentType]: 'application/json',
+    },
+  });
   const apiEndpoint = core.getInput('api-endpoint');
   const tenantId = core.getInput('id');
 
@@ -16,18 +22,14 @@ export default async function sendToDataPlatform(inputData: InputData, features:
     slug: newDatasetSlug,
     display_name: inputData.layerName,
   });
-  const createDatasetResp = await client.post(datasetUrl, body, {
-    'Content-Type': 'application/json',
-  });
+  const createDatasetResp = await dataPlatformClient.post(datasetUrl, body);
   const respBody = await createDatasetResp.readBody();
   if (createDatasetResp.message.statusCode !== 200) {
     throw new Error(`Failed to create dataset: ${createDatasetResp.message.statusCode} ${respBody}`);
   }
 
   const sendChunk = async (chunk: string): Promise<void> => {
-    const response = await client.post(`${datasetUrl}/${newDatasetSlug}/features`, chunk, {
-      'Content-Type': 'application/json',
-    });
+    const response = await dataPlatformClient.post(`${datasetUrl}/${newDatasetSlug}/features`, chunk);
 
     const body = await response.readBody();
     if (response.message.statusCode !== 200) {
@@ -69,9 +71,7 @@ export default async function sendToDataPlatform(inputData: InputData, features:
   const renameBody = JSON.stringify({
     slug: inputData.layerName,
   });
-  const renameResp = await client.post(renameUrl, renameBody, {
-    'Content-Type': 'application/json',
-  });
+  const renameResp = await dataPlatformClient.post(renameUrl, renameBody);
   const renameRespBody = await renameResp.readBody();
   if (renameResp.message.statusCode !== 200) {
     throw new Error(`Failed to rename dataset: ${renameResp.message.statusCode} ${renameRespBody}`);
