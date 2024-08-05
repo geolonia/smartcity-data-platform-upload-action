@@ -5,15 +5,7 @@ import inputToGeoJSON from './stages/20_inputToGeoJSON';
 import sendToDataPlatform from './stages/30_sendToDataPlatform';
 
 async function main() {
-  const apiKey = core.getInput('api-key');
-  core.setSecret(apiKey);
-
   const dataDirectory = core.getInput('data-directory');
-
-  // console.log('api-endpoint:', apiEndpoint);
-  // console.log('api-key:', apiKey);
-  // console.log('data-directory:', dataDirectory);
-  // console.log('id:', id);
 
   const inputData = await findInputData(dataDirectory);
   core.debug(`Found ${inputData.length} input data files.`);

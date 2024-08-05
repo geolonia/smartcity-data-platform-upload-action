@@ -17,6 +17,8 @@ export default async function sendToDataPlatform(inputData: InputData, features:
   const newDatasetSlug = uuid7();
 
   const datasetUrl = `${apiEndpoint}/api/${tenantId}/dataset`;
+  core.debug(`API Key: ${apiKey}`);
+  core.debug(`Dataset URL: ${datasetUrl}`);
 
   const body = JSON.stringify({
     slug: newDatasetSlug,
