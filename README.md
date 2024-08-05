@@ -14,7 +14,7 @@ steps:
       id: my-id
       # データ基盤に認証するためのAPIキー
       # 必須
-      api-key: ${secrets.GEOLONIA_DATA_PLATFORM_API_KEY}
+      api-key: ${{secrets.GEOLONIA_DATA_PLATFORM_API_KEY}}
 
       # 元データを読み込むディレクトリ
       # デフォルト: `./data`
