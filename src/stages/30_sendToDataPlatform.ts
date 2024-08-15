@@ -26,15 +26,16 @@ export default async function sendToDataPlatform(inputData: InputData, features:
   const createDatasetResp = await dataPlatformClient.post(datasetUrl, body);
   const respBody = await createDatasetResp.readBody();
   if (createDatasetResp.message.statusCode !== 200) {
-    throw new Error(`Failed to create dataset: ${createDatasetResp.message.statusCode} ${respBody}`);
+    throw new Error(`Failed to create dataset: POST ${datasetUrl}: ${createDatasetResp.message.statusCode} ${respBody}`);
   }
 
   const sendChunk = async (chunk: string): Promise<void> => {
+    const url = `${datasetUrl}/${newDatasetSlug}/features`;
     const response = await dataPlatformClient.post(`${datasetUrl}/${newDatasetSlug}/features`, chunk);
 
     const body = await response.readBody();
     if (response.message.statusCode !== 200) {
-      throw new Error(`Failed to send data to the platform: ${response.message.statusCode} ${body}`);
+      throw new Error(`Failed to send data to the platform: POST ${url}: ${response.message.statusCode} ${body}`);
     }
   };
 
@@ -75,6 +76,6 @@ export default async function sendToDataPlatform(inputData: InputData, features:
   const renameResp = await dataPlatformClient.post(renameUrl, renameBody);
   const renameRespBody = await renameResp.readBody();
   if (renameResp.message.statusCode !== 200) {
-    throw new Error(`Failed to rename dataset: ${renameResp.message.statusCode} ${renameRespBody}`);
+    throw new Error(`Failed to rename dataset: POST ${renameUrl}: ${renameResp.message.statusCode} ${renameRespBody}`);
   }
 }
