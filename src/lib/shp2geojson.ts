@@ -29,6 +29,9 @@ export default async function shp2geojson(shpPath: string): Promise<GeoJSON.Feat
   await exec.exec('ogr2ogr', ogrArgs, {
     outStream: new BlackHoleStream(),
     listeners: {
+      stderr: (data) => {
+        process.stderr.write(data);
+      },
       stdout: (data) => {
         rawGeoJSON += data.toString();
       },
