@@ -10,9 +10,13 @@ export type InputData = {
 export default async function findInputData(dataDirectory: string): Promise<InputData[]> {
   const patterns = [
     '**/*.xlsx',
+    '**/*.XLSX',
     '**/*.csv',
+    '**/*.CSV',
     '**/*.geojson',
+    '**/*.GEOJSON',
     '**/*.shp',
+    '**/*.SHP',
   ].map((pattern) => path.join(dataDirectory, pattern));
 
   const globber = await glob.create(patterns.join('\n'));
