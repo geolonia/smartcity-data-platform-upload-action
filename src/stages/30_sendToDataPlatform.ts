@@ -48,7 +48,7 @@ export default async function sendToDataPlatform(inputData: InputData, features:
       geom: feature.geometry,
     });
 
-    if (currentChunk.length + body.length > 5_000_000) {
+    if (currentChunk.length + body.length > 2_500_000) {
       if (currentChunkCount === 0) {
         throw new Error('Feature too large to send to the platform - each singular feature must be less than 5MB');
       }
